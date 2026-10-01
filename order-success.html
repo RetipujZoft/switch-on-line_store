@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order confirmed — Switch-On</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700&display=swap');
+body{ margin:0; background:#0a0a0a; font-family:'Inter',sans-serif; color:#f2f0eb; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+.card{ max-width:440px; text-align:center; padding:40px 30px; }
+.tick{ font-size:52px; }
+h1{ font-family:'Archivo Black'; font-weight:400; font-size:28px; margin:14px 0; text-transform:uppercase; letter-spacing:0.01em; }
+p{ color:#9c9a95; line-height:1.6; }
+.ref{ font-weight:700; color:#ff3d78; }
+a.home{ display:inline-block; margin-top:24px; background:#f2f0eb; color:#0a0a0a; text-decoration:none; padding:14px 28px; border-radius:4px; font-weight:800; font-size:13px; letter-spacing:0.06em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="tick">✅</div>
+  <h1>Thanks — your order is in!</h1>
+  <p id="statusText">Checking your payment status…</p>
+  <a class="home" href="/">Back to Switch-On</a>
+</div>
+<script>
+const params = new URLSearchParams(location.search);
+const ref = params.get('ref');
+async function checkStatus(){
+  if(!ref){ document.getElementById('statusText').textContent = 'Order reference not found.'; return; }
+  try{
+    const res = await fetch(`/api/orders/lookup/${encodeURIComponent(ref)}`);
+    const data = await res.json();
+    const el = document.getElementById('statusText');
+    if(data.status === 'paid'){
+      el.innerHTML = `Order <span class="ref">${ref}</span> is paid and confirmed. Switch-On will be in touch to confirm sizing and delivery.`;
+    } else {
+      el.innerHTML = `Order <span class="ref">${ref}</span> is being confirmed — this can take a few seconds. Refresh if it still says pending.`;
+    }
+  } catch(e){
+    document.getElementById('statusText').textContent = 'Could not check order status right now.';
+  }
+}
+checkStatus();
+</script>
+</body>
+</html>
